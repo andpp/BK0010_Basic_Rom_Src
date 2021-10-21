@@ -25,5 +25,9 @@ basic0010: $(OBJ)
 	mkdir -p out
 	$(LINK) /MAP /STB /BIN /B:120000 /EXECUTE:$(ODIR)/$@ $(OBJ)
 
+full-listing:
+	$(ASM) -l basic.lst -ysl 16 -d IS -yus -o out/basic.obj BK.mac GRAF.mac MONIT.mac COMP.mac TRAP.mac JMP.mac FLOAT.mac
+	$(LINK) /MAP /STB /BIN /B:120000 /EXECUTE:out/basic.bin out/basic.obj
+
 clean:
-	rm -f $(ODIR)/*
+	rm -f $(ODIR)/* *.lst

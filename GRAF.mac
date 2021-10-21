@@ -1181,9 +1181,9 @@ $DRAW::
 	CLR	-(SP)		; ЗАПИСЬ СЛОВ( 0,0 -ПРИЗНАК ОКОНЧАНИЯ ),
 	CLR	-(SP)
 	MOV	#70000,-(SP)	; И СЛОВА ПЕРЕМЕЩЕНИЙ  ( WM )( 70000 )
-NEWSTR:
+G_NEWSTR:
 	TST	R3		; НУЛЕВОЙ АДРЕС-ПРИЗНАК КОНЦА ?
-	BEQ	OUT		; ДА--ВЫХОД ИЗ  $DRAW
+	BEQ	G_OUT		; ДА--ВЫХОД ИЗ  $DRAW
 	ADD	R3,R5		; КОРРЕКЦИЯ R5<--АДРЕС ПОСЛЕДН. БАЙТА СТРОКИ
 	DEC	R5
 AGAIN:
@@ -1195,12 +1195,12 @@ AGAIN:
 ;SKANER
 	TRAP	112
 	CMP	R3,R5		; КОНЕЦ ОБРАБОТКИ ПОДСТРОКИ?
-	BHI	NEXT		; ДА
+	BHI	G_NEXT		; ДА
 	CLR	R0		; ПЕРВОНАЧАЛЬНО  НУЛЕВОЕ СМЕЩЕНИЕ
-1$:	CMPB	KEY(R0),(R3)	; СИМВОЛЫ СХОДЯТСЯ
+1$:	CMPB	G_KEY(R0),(R3)	; СИМВОЛЫ СХОДЯТСЯ
 	BEQ	2$		; ДА-НА ВЫХОД
 	INC	R0		; НЕТ--СЛЕДУЮЩИЙ
-	TSTB	KEY(R0)		; НУЛЕВОЙ ? ДА-НА ВЫХОД
+	TSTB	G_KEY(R0)		; НУЛЕВОЙ ? ДА-НА ВЫХОД
 	BNE	1$		; НЕТ--ОПЯТЬ СРАВНЕНИЕ
 	BR	ERROR		; НЕ КЛЮЧ
 2$:	ASL	R0		;  * 2
@@ -1214,16 +1214,16 @@ AGAIN:
 	JMP	RDEG$		; ДА--НА RDEG$
 3$:	JMP	@CASE(R0)	; НЕТ---ВЕТВЛЕНИE
 ;
-KEY:
+G_KEY:
 	.ASCIZ	/MNBCSAXRULDRULEHGFEHG/		; КЛЮЧИ
 	.EVEN
 CASE:
 	.WORD	M$,N$,B$,C$,S$,A$,X$		;МЕТКИ ПЕРЕXОДА SELEKTOR
 ;
-NEXT:				; ОБРАБОТКА СЛЕД. ПОДСТРОКИ
+G_NEXT:				; ОБРАБОТКА СЛЕД. ПОДСТРОКИ
 	POP	<R0,R5,R3>	; ЧТЕНИЕ WM,АДР.И ДЛ. СТРОКИ
 	PUSH	R0		; ЗАПИСЬ WM
-	BR	NEWSTR
+	BR	G_NEWSTR
 ;------------------------------
 ;	X$---ОБРАБОТКА ПОДСТРОК
 ;------------------------------
@@ -1243,7 +1243,7 @@ X$:
 	MOV	R5,4(SP)	;    АДРЕСА И  ДЛИНЫ
 	POP	<R5,R3> 	; ПОЛУЧЕНИЕ НОВЫХ
 	PUSH	R0		; ВОССТ. WM
-	BR	NEWSTR
+	BR	G_NEWSTR
 .IFT
 ;
 ERROR:				; ОШИБКА
@@ -1255,14 +1255,14 @@ BLNC:	TRAP	112		;ПРОПУСК ПРОБЕЛОВ
 	CMPB	#';,@R3
 	RETURN
 ;
-RET:
+G_RET:
 	POP	<@#214,R5>	; ВОССТ. ЦВЕТ,R5
 	CLR	SAVJMP
 	JMP	@(R4)+		; !!!!!!!!! ВЫХОД ИЗ $DRAW
 ;
-OUT:
+G_OUT:
 	TST	(SP)+		; ОЧИСТКА СТЕКА WM
-	BR	RET		; HA ВЫХОД ИЗ $DRAW
+	BR	G_RET		; HA ВЫХОД ИЗ $DRAW
 ;-----------------------------------------
 ;		ОБРАБОТКА ОТДЕЛЬНЫХ КОМАНД
 ;-----------------------------------------
@@ -1504,7 +1504,7 @@ $DRAW::	MOV	(SP)+,R1	;R3	-УКАЗ. В СТР.
 	EMT	24
 	BR	AG1
 ;
-OUT:	TST	(SP)+		;ВЫХОД
+G_OUT:	TST	(SP)+		;ВЫХОД
 	EMT	26
 	MOV	R1,$DRVX
 	MOV	R2,$DRVY
@@ -1518,8 +1518,8 @@ OUT:	TST	(SP)+		;ВЫХОД
 	CLR	SAVJMP
 	JMP	@(R4)+
 ;
-NEXT:	TST	@SP		;ВОЗВРАТ ИЗ ПОДСТРОКИ
-	BEQ	OUT
+G_NEXT:	TST	@SP		;ВОЗВРАТ ИЗ ПОДСТРОКИ
+	BEQ	G_OUT
 	MOV	(SP)+,R3
 	MOV	(SP)+,R5
 	CMPB	@R3,#';
@@ -1540,7 +1540,7 @@ X$:	MOV	R5,-(SP)	;ПОДСТРОКА
 	BR	AG1
 ;
 A1$:	INC	R3		;ВЫБОР
-	SUB	#KEY+10,R0
+	SUB	#G_KEY+10,R0
 	BLO	RD1$
 	ASL	R0
 	JMP	@CASE(R0)
@@ -1556,9 +1556,9 @@ AGAIN:	TRAP	112		;СЛЕДУЮЩАЯ КОМАНДА
 	BNE	AG2
 	INC	R3
 AG1:	TRAP	112
-AG2:	MOV	#KEY,R0
+AG2:	MOV	#G_KEY,R0
 	CMP	R3,R5
-	BHIS	NEXT
+	BHIS	G_NEXT
 1$:	CMPB	@R0,@R3
 	BEQ	A1$
 	TSTB	(R0)+
@@ -1741,7 +1741,7 @@ REIKS:	TRAP	112		;ЗНАЧЕНИЕ
 	BNE	ER1$
 	RETURN
 ;
-KEY:	.ASCIZ	/RFDGLHUEMNBCSAX/		;КОМАНДЫ
+G_KEY:	.ASCIZ	/RFDGLHUEMNBCSAX/		;КОМАНДЫ
 COD:	.BYTE	31,36,33,37,10,34,32,35		;КОДЫ УПР. СИМВ.
 	.EVEN
 CASE:	.WORD	M$,N$,B$,C$,S$,A$,X$

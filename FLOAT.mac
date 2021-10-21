@@ -221,7 +221,7 @@ EGO::	MOV	(SP)+,R5
 	CLR	R3
 	MOV	#6,@SP
 	MOV	#42403,-(SP)
-	BR	GO
+	BR	F_GO
 ;
 DGO::	MOV	(SP)+,R5
 	MOV	(SP)+,R0
@@ -230,7 +230,7 @@ DGO::	MOV	(SP)+,R5
 	MOV	@SP,R3
 	MOV	#20,(SP)
 	MOV	#42003,-(SP)
-GO:	MOV	#1,-(SP)
+F_GO:	MOV	#1,-(SP)
 	MOV	#BUFOUT,-(SP)
 	MOV	#30,-(SP)
 	MOV	R5,-(SP)
@@ -590,9 +590,9 @@ STAND::	TST	(SP)+
 	JMP	@(R4)+
 ;
 IABS::	TST	@SP
-	BPL	I1
+	BPL	F_I1
 INEG::	NEG	@SP
-I1:	JMP	@(R4)+
+F_I1:	JMP	@(R4)+
 ;
 ABS::	BIC	#100000,@SP
 	JMP	@(R4)+
